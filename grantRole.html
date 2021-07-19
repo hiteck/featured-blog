@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+
+	<title>Featured Mass Minting Tool</title>
+	<style>
+		.preview {
+			width: 75px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container" style="padding:10px 10px;">
+		<a href="createCollection.html">Create Collection</a>
+		<h1>Mint NFTs with a JSON File</h1>
+		<p>v0.0.2</p>
+		<div id="header"></div>
+		<button class="btn btn-primary" id="connect-wallet">Connect Metamask</button>
+		<p>Granting permission from: <span id="account"></span></p>
+		<div class="well">
+			<div class="row" id="parsed-json-list">
+			</div>
+			<div>
+				<input id="token-address" placeholder="Collection Address" required />
+				<input id="campaign-address" placeholder="Campaign Address" required />
+				<button type="button" class="btn btn-primary" id="grant-button">Grant Role</button>
+			</div>
+		</div>
+		<div id="footer"></div>
+	</div>
+</body>
+
+</html>
+
+<script type="text/javascript">
+	var account, contractAddress, campaignAddress, contract, token, signer, data, abi;
+
+	if (typeof window.ethereum !== 'undefined') {
+		console.log('MetaMask is installed!');
+	} else {
+		console.log('MetaMask is not installed...')
+	}
+
+	$.getJSON("ERC721Standard.json", function (json) {
+		abi = json.abi;
+	});
+
+	const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+	// Prompt user for account connections
+	provider.send("eth_requestAccounts", []).then(() => {
+		signer = provider.getSigner();
+	});
+
+	const fileSelector = document.getElementById('file-selector');
+	const connectButton = document.getElementById('connect-wallet');
+	const accountField = document.getElementById('account');
+	const contractField = document.getElementById('token-address');
+	const campaignField = document.getElementById('campaign-address');
+	const grantButton = document.getElementById('grant-button');
+
+
+	accountField.style.display = 'none';
+
+	connectButton.addEventListener('click', () => {
+		const accounts = ethereum.request({ method: 'eth_requestAccounts' }).then((accounts) => {
+			account = accounts[0];
+			accountField.innerHTML = account;
+			accountField.style.display = 'block';
+			connectButton.style.display = 'none';
+		});
+	});
+
+	grantButton.addEventListener('click', () => {
+		token.grantRole("0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", campaignAddress)
+		console.log("granted: ", token.address, campaignAddress)
+	});
+
+	contractField.addEventListener('change', (updateValue) => {
+		collectionAddress = contractField.value;
+		token = new ethers.Contract(collectionAddress, abi, signer)
+	});
+
+	campaignField.addEventListener('change', (updateValue) => {
+		campaignAddress = campaignField.value;
+	});
+
+</script>
